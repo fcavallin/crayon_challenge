@@ -1,0 +1,16 @@
+ipykernel
+pandas
+sklearn
+transformers
+torch
+torchvision
+torchaudio
+pytest
+sklearn
+pandas
+datasets
+transformers
+numpy
+scipy
+stats
+uvicorn
