@@ -11,16 +11,17 @@ class TransformerModelClassification:
     def __init__(self, num_labels: int):
         self.trainer = None
         self.is_trained = False
-        self.tokenizer = AutoTokenizer.from_pretrained("models/huggingface/bert-tiny")
+        self.tokenizer = AutoTokenizer.from_pretrained("prajjwal1/bert-tiny")
         self.device = "cuda:0" if torch.cuda.is_available() else "cpu"
-        self.model = AutoModelForSequenceClassification.from_pretrained("models/huggingface/bert-tiny",
+        self.num_labels = num_labels
+        self.model = AutoModelForSequenceClassification.from_pretrained("prajjwal1/bert-tiny",
                                                                         num_labels=num_labels)
         self.model.to(self.device)
         self._init_training_args()
 
     def _init_training_args(self):
         self.training_args = TrainingArguments(
-            output_dir='output',
+            output_dir='models/bert-tiny-finetuned',
             overwrite_output_dir=True,
             num_train_epochs=20,
             per_device_train_batch_size=16,
@@ -64,9 +65,19 @@ class TransformerModelClassification:
         self.is_trained = True
 
     def predict(self, dataset: Dataset) -> PredictionOutput:
-        if not self.is_trained or not self.trainer:
-            raise ValueError("Model is not trained!")
-
         output: PredictionOutput = self.trainer.predict(dataset)
-
         return output
+
+    def save(self, model_checkpoint_path: str):
+        self.trainer.save_model(model_checkpoint_path)
+
+    def load(self, model_checkpoint_path: str):
+        self.model = AutoModelForSequenceClassification.from_pretrained(
+            model_checkpoint_path,
+            num_labels=self.num_labels
+        )
+        self.tokenizer = AutoTokenizer.from_pretrained("prajjwal1/bert-tiny")
+
+        self.trainer = Trainer(
+            model=self.model
+        )
