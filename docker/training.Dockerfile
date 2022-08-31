@@ -1,4 +1,4 @@
-FROM python:3.8-slim-buster
+FROM huggingface/transformers-pytorch-gpu
 
 ARG USER_ID
 ARG USER_NAME=user
@@ -13,6 +13,4 @@ WORKDIR ${USER_HOME}
 
 COPY --chown=${USER_ID}:${USER_ID} . ${USER_HOME}
 
-RUN pip3 install -r requirements.txt
-
-CMD ["python3", "-u", "main.py"]
+CMD ["python3", "-u", "training.py"]
