@@ -3,7 +3,7 @@ from pandas import DataFrame
 from sklearn.model_selection import train_test_split
 from sklearn.utils import shuffle
 
-from config import PREPROCESSED_DATA_PATH
+from config import POSTPROCESSED_DATA_PATH, TRAIN_DATA_PATH, TEST_DATA_PATH
 
 
 class DataPreprocessor:
@@ -11,7 +11,7 @@ class DataPreprocessor:
     def __init__(self, data: DataFrame):
         self.preprocessed_data = self._preprocess_data(data=data)
         self.n_labels = self._count_label_nr()
-        self._save_preprocessed_data(path=PREPROCESSED_DATA_PATH)
+        self._save_preprocessed_data(path=POSTPROCESSED_DATA_PATH)
 
     def _preprocess_data(self, data: DataFrame) -> DataFrame:
         data_to_preprocess: DataFrame = data.copy(deep=True)
@@ -70,4 +70,7 @@ class DataPreprocessor:
         return self.n_labels
 
     def split(self, test_size: float = 0.2) -> Tuple[DataFrame, DataFrame]:
-        return train_test_split(self.preprocessed_data, test_size=test_size, shuffle=True)
+        train_dataset, test_dataset = train_test_split(self.preprocessed_data, test_size=test_size, shuffle=True)
+        train_dataset.to_csv(TRAIN_DATA_PATH, index=False)
+        test_dataset.to_csv(TEST_DATA_PATH, index=False)
+        return train_dataset, test_dataset
