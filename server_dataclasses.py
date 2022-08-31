@@ -1,13 +1,15 @@
 from enum import Enum
+from typing import List
+
 from pydantic import BaseModel
 
 
-class Email(BaseModel):
-    text: str
+class Request(BaseModel):
+    emails: List[str]
 
 
 class Response(BaseModel):
-    predictions: str
+    predictions: List[str]
 
 
 class Labels(Enum):
