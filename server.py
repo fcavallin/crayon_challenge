@@ -1,12 +1,14 @@
 from typing import List
 from fastapi import FastAPI
 from pandas import DataFrame
-import pandas as pd
 from transformers.pipelines.base import Dataset
 from transformers.trainer_utils import PredictionOutput
-
-from server_dataclasses import Response, Email, Labels
+from server_dataclasses import Response, Labels, Request
 from transformer_model import TransformerModelClassification
+
+import pandas as pd
+import numpy as np
+
 
 app = FastAPI()
 classifier = TransformerModelClassification(5)
@@ -19,11 +21,12 @@ def root():
 
 
 @app.post('/predict', response_model=Response)
-def classify_email(email: Email) -> Response:
-    pd_dataset: DataFrame = pd.DataFrame([email.text], columns=['text'])
-    tokenized_email: Dataset = classifier.tokenize_dataset(pd_dataset=pd_dataset)
-    response_predictions: PredictionOutput = classifier.predict(tokenized_email)
-    scores_list: List = response_predictions.predictions.tolist()[0]
-    best_scores: int = scores_list.index(max(scores_list))
-    responses: Response = Response(predictions=str(Labels(best_scores).name))
+def classify_email(request: Request) -> Response:
+    pd_dataset: DataFrame = pd.DataFrame(request.emails, columns=['text'])
+    tokenized_emails: Dataset = classifier.tokenize_dataset(pd_dataset=pd_dataset)
+    response_predictions: PredictionOutput = classifier.predict(tokenized_emails)
+    scores_list: np.ndarray = response_predictions.predictions
+    best_scores: np.ndarray = np.argmax(scores_list, axis=1)
+    predictions_labels: List[str] = [Labels(score).name for score in best_scores]
+    responses: Response = Response(predictions=predictions_labels)
     return responses
