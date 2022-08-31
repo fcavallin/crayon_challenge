@@ -33,6 +33,10 @@ def main():
 
     logging.debug(result.metrics)
 
+    logging.debug(f"Saving model")
+
+    model.save('models/bert-tiny-finetuned')
+
     logging.debug("End...")
 
 
