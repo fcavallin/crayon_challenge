@@ -1,5 +1,8 @@
 from os import getenv
 
 PREPROCESSED_DATA_PATH: str = getenv("PREPROCESSED_DATA_PATH")
+POSTPROCESSED_DATA_PATH: str = getenv("POSTPROCESSED_DATA_PATH")
+TRAIN_DATA_PATH: str = getenv("TRAIN_DATA_PATH")
+TEST_DATA_PATH: str = getenv("TEST_DATA_PATH")
 MODEL_PATH: str = getenv("MODEL_PATH")
 NUM_LABELS: str = getenv("NUM_LABELS")
