@@ -15,26 +15,46 @@ class DataPreprocessor:
 
     def _preprocess_data(self, data: DataFrame) -> DataFrame:
         data_to_preprocess: DataFrame = data.copy(deep=True)
-        data_to_preprocess = self._drop_most_data(data_to_preprocess)
+        data_to_preprocess = self._drop_index_column(data_to_preprocess)
+        # data_to_preprocess = self._drop_most_data(data_to_preprocess)
         data_to_preprocess = self._drop_lines_with_empty_content(data_to_preprocess)
         data_to_preprocess = self._rename_label_column(data_to_preprocess)
+        data_to_preprocess = self._encode_classes(data_to_preprocess)
         data_to_preprocess = shuffle(data_to_preprocess)
         return data_to_preprocess
 
     @staticmethod
-    def _drop_most_data(data: DataFrame, percentage: float = 0.2) -> DataFrame:
+    def _drop_index_column(data: DataFrame) -> DataFrame:
+        data.reset_index(drop=True, inplace=True)
+        data.drop("Unnamed: 0", axis=1, inplace=True)
+        return data
+
+    @staticmethod
+    def _drop_most_data(data: DataFrame, percentage: float = 0.01) -> DataFrame:
         data = shuffle(data)
-        return data.head(int(len(data)*percentage))
+        return data.head(int(len(data) * percentage))
 
     @staticmethod
     def _drop_lines_with_empty_content(data: DataFrame) -> DataFrame:
-        data.replace("", float("NaN"), inplace=True)
         data.dropna(inplace=True)
         return data
 
     @staticmethod
     def _rename_label_column(data: DataFrame) -> DataFrame:
         data.rename(columns={"product": "label", "narrative": "text"}, inplace=True)
+        return data
+
+    @staticmethod
+    def _encode_classes(data: DataFrame) -> DataFrame:
+        data['label'].replace(
+            [
+                'debt_collection',
+                'credit_reporting',
+                'mortgages_and_loans',
+                'credit_card',
+                'retail_banking'],
+            [0, 1, 2, 3, 4]
+            , inplace=True)
         return data
 
     def _save_preprocessed_data(self, path: str) -> None:
